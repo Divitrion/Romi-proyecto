@@ -24,19 +24,19 @@
 
       <a-entity mindar-image-target="targetIndex: 0" smooth-follow>
         <a-plane src="#bg" position="0 0 -0.03" height="1" width="1"
-                material="transparent: true" render-order="0"></a-plane>
+                material="transparent: true" render-order="0" view-parallax="intensity: 0.25; rotIntensity: 2"></a-plane>
 
         <a-plane src="#fade" position="0 0 -0.02" height="1" width="1"
-                material="transparent: true; alphaTest: 0.01" render-order="1"></a-plane>
+                material="transparent: true; alphaTest: 0.01" render-order="1" view-parallax="intensity: 0.25; rotIntensity: 2" ></a-plane>
 
         <a-plane src="#grid" position="0 0 -0.01" height="1" width="1"
-                material="transparent: true; alphaTest: 0.01" render-order="2"></a-plane>
+                material="transparent: true; alphaTest: 0.01" render-order="2"view-parallax="intensity: 0.25; rotIntensity: 2" ></a-plane>
 
         <a-plane src="#chara" position="0 0 0.015" height="1" width="1" 
-        material="color: black; transparent: true; opacity: 0.35" fake-shadow="intensity: 0.06"></a-plane>
+        material="color: black; transparent: true; opacity: 0.35" fake-shadow="intensity: 0.06"view-parallax="intensity: 0.25; rotIntensity: 2"></a-plane>
 
         <a-plane src="#chara" position="0 0 0.3" height="1" width="1"
-                material="transparent: true" render-order="3" holo-parallax="posIntensity: 15; rotIntensity: 30"></a-plane>
+                material="transparent: true" render-order="3" view-parallax="intensity: 0.25; rotIntensity: 2"></a-plane>
         
       </a-entity>
 

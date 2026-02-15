@@ -9,24 +9,32 @@ AFRAME.registerComponent('smooth-follow', {
   }
 });
 
-AFRAME.registerComponent('holo-parallax', {
+AFRAME.registerComponent('view-parallax', {
   schema: {
-    posIntensity: { default: 0.05 }, // desplazamiento
-    rotIntensity: { default: 5 }     // rotación en grados
+    intensity: { default: 0.3 }, // fuerza del efecto
+    rotIntensity: { default: 10 }
   },
-  tick: function () {
+
+  tick() {
     const cam = this.el.sceneEl.camera;
     if (!cam) return;
 
-    const rot = cam.rotation;
+    const objPos = new THREE.Vector3();
+    const camPos = new THREE.Vector3();
 
-    // desplazamiento
-    this.el.object3D.position.x = rot.y * this.data.posIntensity;
-    this.el.object3D.position.y = rot.x * this.data.posIntensity;
+    this.el.object3D.getWorldPosition(objPos);
+    cam.getWorldPosition(camPos);
 
-    // rotación sutil
-    this.el.object3D.rotation.y = rot.y * this.data.rotIntensity;
-    this.el.object3D.rotation.x = rot.x * this.data.rotIntensity;
+    // vector de vista
+    const dir = objPos.clone().sub(camPos).normalize();
+
+    // desplazamiento exagerado
+    this.el.object3D.position.x = -dir.x * this.data.intensity;
+    this.el.object3D.position.y = -dir.y * this.data.intensity;
+
+    // rotación para efecto foil
+    this.el.object3D.rotation.y = dir.x * this.data.rotIntensity;
+    this.el.object3D.rotation.x = dir.y * this.data.rotIntensity;
   }
 });
 
