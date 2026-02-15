@@ -5,13 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <script src = "script.js"></script>
 </head>
 <body>
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind;
+    filterMinCF: 0.001;
+    filterBeta: 0.01;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+
+      <a-assets>
+      <img id="card" src="./Test.png" />
+      <img id="bg" src="./1.png" />
+      <img id="fade" src="./2.png" />
+      <img id="grid" src="./3.png" />
+      <img id="chara" src="./4.png" />
+      </a-assets>
+
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-plane color="blue" opaciy="0.5" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>
+
+      <a-entity mindar-image-target="targetIndex: 0" smooth-follow>
+        <a-plane src="#bg" position="0 0 -0.03" height="1" width="1"
+                material="transparent: true" render-order="0"></a-plane>
+
+        <a-plane src="#fade" position="0 0 -0.02" height="1" width="1"
+                material="transparent: true; alphaTest: 0.01" render-order="1"></a-plane>
+
+        <a-plane src="#grid" position="0 0 -0.01" height="1" width="1"
+                material="transparent: true; alphaTest: 0.01" render-order="2"></a-plane>
+
+        <a-plane src="#chara" position="0 0 0.015" height="1" width="1" 
+        material="color: black; transparent: true; opacity: 0.35" fake-shadow="intensity: 0.06"></a-plane>
+
+        <a-plane src="#chara" position="0 0 0.3" height="1" width="1"
+                material="transparent: true" render-order="3" holo-parallax="posIntensity: 15; rotIntensity: 30"></a-plane>
+        
       </a-entity>
+
     </a-scene>
 </body>
 </html>
