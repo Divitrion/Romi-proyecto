@@ -103,3 +103,8 @@ AFRAME.registerShader('holofoil-distort', {
     }
   `
 });
+
+
+document.body.addEventListener("click", () => {
+  video.play();
+}, { once: true });

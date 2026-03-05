@@ -18,12 +18,19 @@
       <img id="fade" src="./2.png" />
       <img id="grid" src="./3.png" />
       <img id="chara" src="./4.png" />
+        <video id="test"
+                src="./Test.webm"
+                loop
+                muted
+                playsinline
+                crossorigin="anonymous">
+        </video>
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-entity mindar-image-target="targetIndex: 0" smooth-follow>
-        <a-plane src="#bg" position="0 0 -0.12" height="1" width="1"
+      <a-entity id="cardTarget" mindar-image-target="targetIndex: 0" smooth-follow>
+      <!--  <a-plane src="#bg" position="0 0 -0.12" height="1" width="1"
                 material="transparent: true" render-order="0"></a-plane>
 
         <a-plane src="#fade" position="0 0 -0.11" height="1" width="1"
@@ -36,10 +43,35 @@
         material="color: black; transparent: true; opacity: 0.35; depthWrite: false;" fake-shadow="intensity: 0.06" view-parallax="intensity: 0.25; rotIntensity: 3"></a-plane>
 
         <a-plane src="#chara" position="0 0 0.3" height="1" width="1"
-                material="transparent: true" render-order="3" view-parallax="intensity: 0.25; rotIntensity: 3"></a-plane>
+                material="transparent: true" render-order="3" view-parallax="intensity: 0.25; rotIntensity: 3"></a-plane> -->
+
+        <a-video src="#test" position="0 0 0.3" height="1" width="1"
+                material="transparent: true; depthWrite: false"></a-video>
         
       </a-entity>
 
     </a-scene>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        const video = document.querySelector("#test");
+        const target = document.querySelector("#cardTarget");
+
+        target.addEventListener("targetFound", () => {
+        console.log("Target detectado");
+        video.play();
+        });
+
+        target.addEventListener("targetLost", () => {
+        video.pause();
+        });
+        });
+        
+        document.body.addEventListener("click", () => {
+        video.play();
+        }, { once: true });
+     </script>
+
+
 </body>
 </html>
