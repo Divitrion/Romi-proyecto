@@ -96,7 +96,7 @@
 
         target.addEventListener("targetFound", () => {
         console.log("Target detectado");
-        video.playbackRate = 2;
+        video.playbackRate = 1;
         video.play();
         });
 
@@ -106,7 +106,7 @@
         });
 
         document.body.addEventListener("click", () => {
-        video.playbackRate = 2;
+        video.playbackRate = 1;
         video.play();
         }, { once: true });
      </script>
