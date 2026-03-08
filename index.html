@@ -25,6 +25,12 @@
                 playsinline
                 crossorigin="anonymous">
         </video>
+         <video id="robos"
+                src="./Romi.webm"
+                muted
+                playsinline
+                crossorigin="anonymous">
+        </video>
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -48,13 +54,13 @@
         </a-entity>
         
         <a-entity id="cardTarget" mindar-image-target="targetIndex: 1" smooth-follow>
-                <a-video src="#test" position="0 0 0.3" height="1" width="1"
+                <a-video src="#robos" position="0 0 0.3" height="1" width="1"
                         material="transparent: true; depthWrite: false"></a-video>
         </a-entity>
 
 
         <a-entity id="cardTarget" mindar-image-target="targetIndex: 2" smooth-follow>
-                <a-video src="#test" position="0 0 0.3" height="1" width="1"
+                <a-video src="#robos" position="0 0 0.3" height="1" width="1"
                         material="transparent: true; depthWrite: false"></a-video>
         </a-entity>
 
