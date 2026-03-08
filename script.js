@@ -1,5 +1,5 @@
 AFRAME.registerComponent('smooth-follow', {
-  schema: { factor: { default: 0.15 } },
+  schema: { factor: { default: 0.5 } },
   init() {
     this.targetPos = new THREE.Vector3();
   },
@@ -25,14 +25,11 @@ AFRAME.registerComponent('view-parallax', {
     this.el.object3D.getWorldPosition(objPos);
     cam.getWorldPosition(camPos);
 
-    // vector de vista
     const dir = objPos.clone().sub(camPos).normalize();
 
-    // desplazamiento exagerado
     this.el.object3D.position.x = -dir.x * this.data.intensity;
     this.el.object3D.position.y = -dir.y * this.data.intensity;
 
-    // rotación para efecto foil
     this.el.object3D.rotation.y = dir.x * this.data.rotIntensity;
     this.el.object3D.rotation.x = dir.y * this.data.rotIntensity;
   }
@@ -40,7 +37,7 @@ AFRAME.registerComponent('view-parallax', {
 
 AFRAME.registerComponent('fake-shadow', {
   schema: {
-    intensity: { default: 0.05 }, // cuánto se desplaza
+    intensity: { default: 0.05 },
     opacity: { default: 0.35 }
   },
   init() {
@@ -51,7 +48,6 @@ AFRAME.registerComponent('fake-shadow', {
 
     const rot = this.cam.rotation;
 
-    // mover en dirección opuesta
     this.el.object3D.position.x = -rot.y * this.data.intensity;
     this.el.object3D.position.y = -rot.x * this.data.intensity;
   }
@@ -104,7 +100,32 @@ AFRAME.registerShader('holofoil-distort', {
   `
 });
 
+AFRAME.registerComponent('dynamic-shadow', {
+  schema: {
+    offset: {default: 0.08},   // cuánto se mueve
+    scaleBoost: {default: 0.15} // cuánto cambia el tamaño
+  },
 
-document.body.addEventListener("click", () => {
-  video.play();
-}, { once: true });
+  tick() {
+    const cam = this.el.sceneEl.camera;
+    if (!cam) return;
+
+    const obj = this.el.object3D;
+
+    const camPos = new THREE.Vector3();
+    const objPos = new THREE.Vector3();
+
+    cam.getWorldPosition(camPos);
+    obj.getWorldPosition(objPos);
+
+    const dir = objPos.clone().sub(camPos).normalize();
+
+    // mover sombra en dirección opuesta a la cámara
+    obj.position.x = -dir.x * this.data.offset;
+    obj.position.y = -dir.y * this.data.offset;
+
+    // cambiar tamaño según ángulo
+    const scale = 1 + Math.abs(dir.y) * this.data.scaleBoost;
+    obj.scale.set(scale, scale, 1);
+  }
+});

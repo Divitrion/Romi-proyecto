@@ -12,12 +12,20 @@
     filterMinCF: 0.001;
     filterBeta: 0.01;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
 
-      <a-assets>
-      <img id="card" src="./Test.png" />
-      <img id="bg" src="./1.png" />
-      <img id="fade" src="./2.png" />
-      <img id="grid" src="./3.png" />
-      <img id="chara" src="./4.png" />
+        <a-assets>
+        <img id="card" src="./Test.png" />
+        <img id="bg" src="./1.png" />
+        <img id="fade" src="./2.png" />
+        <img id="grid" src="./3.png" />
+        <img id="chara" src="./4.png" />
+
+        <!-- assets para el robos -->
+        <img id="frame1" src="./Robos/frame1.png" />
+        <img id="frame2" src="./Robos/frame2.png" />
+        <img id="frame4" src="./Robos/frame4.png" />
+        </a-assets>
+
+        <a-assets>
         <video id="test"
                 src="./Test.webm"
                 loop
@@ -25,16 +33,18 @@
                 playsinline
                 crossorigin="anonymous">
         </video>
-         <video id="robos"
+        <video id="robos"
                 src="./Romi.webm"
+                loop
                 muted
                 playsinline
                 crossorigin="anonymous">
         </video>
-      </a-assets>
+        </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
+      <!-- este target es la imagen de test en el documento -->
       <a-entity mindar-image-target="targetIndex: 0" smooth-follow>
        <a-plane src="#bg" position="0 0 -0.12" height="1" width="1"
                 material="transparent: true" render-order="0"></a-plane>
@@ -52,13 +62,26 @@
                 material="transparent: true" render-order="3" view-parallax="intensity: 0.25; rotIntensity: 3"></a-plane>
                 
         </a-entity>
-        
+
+        <!-- este target es el robos -->
         <a-entity id="cardTarget" mindar-image-target="targetIndex: 1" smooth-follow>
-                <a-video src="#robos" position="0 0 0.3" height="1" width="1"
-                        material="transparent: true; depthWrite: false"></a-video>
+                <a-plane src="#frame1" position="0.1 0 -0.05" height="1" width="1"
+                material="transparent: true" render-order="0"></a-plane>
+
+                <a-plane src="#frame2" position="0.1 0 0" height="1" width="1"
+                material="transparent: true" render-order="1"></a-plane>
+
+                <a-plane src="#robos" position="0 0 0.1" height="1" width="1" render-order="2" 
+                material="color: black; transparent: true; opacity: 0.35; depthWrite: false;" dynamic-shadow="offset: 0.1; scaleboost: 0.15" ></a-plane>
+                
+                <a-video src="#robos" position="0 0 0.04" height="1" width="1" render-order="3"
+                material="transparent: true; depthWrite: true"></a-video>
+                
+                <a-plane src="#frame4" position="0 0 0.08" height="1" width="1"
+                material="transparent: true" render-order="4"></a-plane>
         </a-entity>
 
-
+        <!-- este target es el tipo que farmea aura -->
         <a-entity id="cardTarget" mindar-image-target="targetIndex: 2" smooth-follow>
                 <a-video src="#robos" position="0 0 0.3" height="1" width="1"
                         material="transparent: true; depthWrite: false"></a-video>
