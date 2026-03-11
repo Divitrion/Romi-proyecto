@@ -10,7 +10,7 @@
 <body>
     <a-scene mindar-image="imageTargetSrc: ./targets.mind;
     filterMinCF: 0.001;
-    filterBeta: 0.01;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    filterBeta: 0.01;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" renderer="stencil: true">
 
         <a-assets>
         <img id="card" src="./Test.png" />
@@ -42,6 +42,15 @@
         </video>
         </a-assets>
 
+        <!-- assets para el tipo con aura -->
+        <a-assets>
+        <img id="sujeto" src="./Aura/7.png" />
+        <img id="b1" src="./Aura/B1.png" />
+        <img id="b1b" src="./Aura/B1-back.png" />
+        <img id="b2" src="./Aura/B2.png" />  
+        <img id="b3" src="./Aura/B3.png" />  
+        </a-assets>
+
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <!-- este target es la imagen de test en el documento -->
@@ -64,52 +73,105 @@
         </a-entity>
 
         <!-- este target es el robos -->
-        <a-entity id="cardTarget" mindar-image-target="targetIndex: 1" smooth-follow>
-                <a-plane src="#frame1" position="0.1 0 -0.05" height="1" width="1"
-                material="transparent: true" render-order="0"></a-plane>
+        <a-entity id="cardTarget" mindar-image-target="targetIndex: 1" smooth-follow  ar-video="video: #robos">
+                <a-plane src="#frame1" position="0 0 0" height="1" width="1"
+                material="shader: holofoil-distort; map: #frame1; transparent: true" render-order="0" view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
 
-                <a-plane src="#frame2" position="0.1 0 0" height="1" width="1"
-                material="transparent: true" render-order="1"></a-plane>
-
-                <a-plane src="#robos" position="0 0 0.1" height="1" width="1" render-order="2" 
-                material="color: black; transparent: true; opacity: 0.35; depthWrite: false;" dynamic-shadow="offset: 0.1; scaleboost: 0.15" ></a-plane>
+                <a-plane src="#frame2" position="0 0 0.02" height="1" width="1"
+                material="shader: holofoil-distort; map: #frame2; transparent: true" render-order="1" uv-parallax="strength=0.01" view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
                 
-                <a-video src="#robos" position="0 0 0.04" height="1" width="1" render-order="3"
-                material="transparent: true; depthWrite: false"></a-video>
+                <a-video src="#robos" position="0 0 0.1" height="1" width="1" render-order="2" 
+                material="color: black; transparent: true; opacity: 0.35; depthWrite: false;" fake-shadow="intensity: 0.06"
+                view-parallax="intensity: 0.25; rotIntensity: 4"></a-video>
                 
-                <a-plane src="#frame4" position="0 0 0.08" height="1" width="1"
-                material="transparent: true" render-order="4"></a-plane>
+                <a-video src="#robos" position="2 0 0.15" height="1" width="1" render-order="3"
+                material="shader: tcg-foil; map: #robos; transparent: true; depthWrite: false" view-parallax="intensity: 0.25; rotIntensity: 4"></a-video>
+                
+                <a-plane src="#frame4" position="0 0 0.20" height="1" width="1"
+                material="transparent: true" render-order="4" view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
         </a-entity>
 
         <!-- este target es el tipo que farmea aura -->
         <a-entity id="cardTarget" mindar-image-target="targetIndex: 2" smooth-follow>
-                <a-video src="#robos" position="0 0 0.3" height="1" width="1"
-                        material="transparent: true; depthWrite: false"></a-video>
+
+                <a-plane src="#b3" position="0 0 -0.1" height="1" width="1"
+                material="transparent: true" 
+                view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
+
+                <a-plane src="#b2" position="0 0 -0.05" height="1" width="1"
+                material="transparent: true;"  
+                view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
+
+
+                <a-entity id="cardTarget" view-parallax="intensity: 0.25; rotIntensity: 4">
+
+                        
+                        <a-plane src="#b1" width="1" height="1" position="0 0 0.01"
+                        stencil-write
+                        material="transparent:true">
+                        </a-plane>
+                
+                        <a-plane src="#sujeto" position="0 0.05 0.02" height="1" width="1" 
+                        material="color: black; transparent: true; opacity: 0.35; depthWrite: false; alphaTest:0.3"
+                        render-order="3"
+                        fake-shadow="intensity: 0.06">
+                        </a-plane>
+
+                        <a-plane src="#sujeto" width="1" height="1" position="0 0 0.02"
+                        material="transparent:true; depthWrite:true">
+                        </a-plane>
+
+                        <a-plane src="#b1b" width="1" height="1" position="0 0 0.02"
+                        material="transparent:true; depthWrite:true">
+                        </a-plane>
+
+                </a-entity>
         </a-entity>
 
-    </a-scene>
+ </a-scene>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-        const video = document.querySelector("#robos");
-        const target = document.querySelector("#cardTarget");
 
-        target.addEventListener("targetFound", () => {
-        console.log("Target detectado");
+<script>
+        AFRAME.registerComponent("ar-video", {
+        schema: {
+        video: { type: "selector" }
+        },
+
+        init: function () {
+        const video = this.data.video;
+        const el = this.el;
+
+        if (!video) return;
+
+        const playVideo = () => {
+        video.currentTime = 0;
         video.playbackRate = 1;
-        video.play();
-        });
 
-        target.addEventListener("targetLost", () => {
+        const promise = video.play();
+        if (promise !== undefined) {
+                promise.catch(() => {
+                console.log("Autoplay bloqueado, esperando interacción...");
+                });
+        }
+        };
+
+        const pauseVideo = () => {
         video.pause();
-        });
-        });
+        };
 
-        document.body.addEventListener("click", () => {
-        video.playbackRate = 1;
-        video.play();
-        }, { once: true });
-     </script>
+        el.addEventListener("targetFound", playVideo);
+        el.addEventListener("targetLost", pauseVideo);
+
+        // desbloqueo de autoplay en móviles
+        const unlock = () => {
+        video.play().then(() => video.pause()).catch(() => {});
+        document.body.removeEventListener("click", unlock);
+        };
+
+        document.body.addEventListener("click", unlock);
+        }
+        });
+</script>
 
 
 </body>
