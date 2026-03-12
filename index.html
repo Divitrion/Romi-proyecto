@@ -25,6 +25,17 @@
         <img id="frame4" src="./Robos/frame4.png" />
         </a-assets>
 
+
+
+        <a-assets>
+        <img id="lamp1" src="./Lampara/C1.png">
+        <img id="lamp2" src="./Lampara/C2.png">
+        <img id="lamp3" src="./Lampara/C3.png">
+        <img id="lamp4" src="./Lampara/C4.png">
+        <img id="lamp5" src="./Lampara/C6.png">
+        </a-assets>
+
+
         <a-assets>
         <video id="test"
                 src="./Test.webm"
@@ -69,7 +80,6 @@
 
         <a-plane src="#chara" position="0 0 0.3" height="1" width="1"
                 material="transparent: true" render-order="3" view-parallax="intensity: 0.25; rotIntensity: 3"></a-plane>
-                
         </a-entity>
 
         <!-- este target es el robos -->
@@ -85,10 +95,32 @@
                 view-parallax="intensity: 0.25; rotIntensity: 4"></a-video>
                 
                 <a-video src="#robos" position="0 0 0.15" height="1" width="1" render-order="3"
-                material="shader: tcg-foil; map: #robos; transparent: true; depthWrite: false" view-parallax="intensity: 0.25; rotIntensity: 4"></a-video>
+                material="transparent: true; depthWrite: false" view-parallax="intensity: 0.25; rotIntensity: 4"></a-video>
                 
                 <a-plane src="#frame4" position="0 0 0.20" height="1" width="1"
                 material="transparent: true" render-order="4" view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
+
+                <a-entity position="-0.6 0.5 0.5" scale="0.7 0.7 1"  view-parallax="intensity: 0.1; rotIntensity: 2">
+                        <a-plane src="#lamp4" position="0 0 0" height="1" width="1"
+                        material="transparent: true" render-order="3">
+                        </a-plane>  
+                        <a-plane src="#lamp3" position="0 0 0" height="1" width="1"
+                        material="transparent: true" render-order="2">
+                        </a-plane>  
+                        <a-plane src="#lamp2" position="0 0 0" height="1" width="1"
+                        material="transparent: true" render-order="1">
+                        </a-plane>  
+                        <a-plane src="#lamp1" position="0 0 0" height="1" width="1"
+                        material="transparent: true" render-order="0">
+                        </a-plane>
+                        <a-plane src="#lamp5" position="0 0.05 0.02" height="1" width="1" 
+                        material="color: black; transparent: true; opacity: 0.35; depthWrite: false; alphaTest:0.3"
+                        render-order="3"
+                        fake-shadow="intensity: 0.06">
+                        </a-plane>
+                </a-plane>  
+                </a-entity>     
+
         </a-entity>
 
         <!-- este target es el tipo que farmea aura -->
@@ -106,7 +138,7 @@
                 <a-entity id="cardTarget" view-parallax="intensity: 0.25; rotIntensity: 4">
 
                         
-                        <a-plane src="#b1" width="1" height="1" position="0 0 0.01"
+                        <a-plane src="#b1" width="1" height="1" position="0 0 0.01" scale="1, 1, 1"
                         stencil-write
                         material="transparent:true">
                         </a-plane>
