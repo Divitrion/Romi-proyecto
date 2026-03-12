@@ -72,143 +72,139 @@ AFRAME.registerComponent('fake-shadow', {
 });
 
 
-AFRAME.registerShader('holofoil-distort', {
+AFRAME.registerShader('holo-card', {
   schema: {
-    timeMsec: { type: 'time', is: 'uniform' },
-    map: { type: 'map', is: 'uniform' }
+    map:  { type: 'map',   is: 'uniform' },
+    time: { type: 'time',  is: 'uniform' },
+    rot:  { type: 'vec3',  is: 'uniform', default: {x:0,y:0,z:0} }
   },
-
   vertexShader: `
     varying vec2 vUv;
-
     void main() {
       vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+      gl_Position = projectionMatrix *
+                    modelViewMatrix *
+                    vec4(position,1.0);
     }
   `,
-
   fragmentShader: `
+    uniform sampler2D map;
+    uniform float time;
+    uniform vec3 rot;
     varying vec2 vUv;
 
-    uniform sampler2D map;
-    uniform float timeMsec;
+    // shift hue by a given amount (simple RGB↔YIQ conversion)
+    vec3 hueShift(vec3 c, float shift) {
+      const mat3 toYIQ = mat3(
+         0.299, 0.587, 0.114,
+         0.596,-0.274,-0.322,
+         0.211,-0.523, 0.312
+      );
+      const mat3 toRGB = inverse(toYIQ);
+      vec3 yiq = toYIQ * c;
+      float hue   = atan(yiq.z, yiq.y);
+      float chrom = length(yiq.yz);
+      hue += shift;
+      yiq.y = chrom * cos(hue);
+      yiq.z = chrom * sin(hue);
+      return toRGB * yiq;
+    }
 
-    
     void main() {
-
-      float t = timeMsec / 1000.0;
-
       vec4 base = texture2D(map, vUv);
-
-      float noise =
-        sin(vUv.x * 20.0 + t * 1.2) *
-        cos(vUv.y * 25.0 + t * 0.8);
-
-      vec2 uv = vUv + noise * 0.02;
-
-      float wave = sin((uv.x + t * 0.2) * 10.0) * 0.5 + 0.5;
-
-      vec3 c1 = vec3(0.1, 0.9, 1.0);
-      vec3 c2 = vec3(1.0, 0.2, 0.9);
-      vec3 c3 = vec3(0.9, 1.0, 0.2);
-
-      vec3 holo = mix(c1, c2, wave);
-      holo = mix(holo, c3, sin(uv.y * 10.0 + t) * 0.5 + 0.5);
-
-      // intensidad del foil
-      float foilStrength = 0.2;
-
-      vec3 finalColor = mix(base.rgb, holo, foilStrength);
-
-      gl_FragColor = vec4(finalColor, base.a);
+      // use Y‑rotation as the driving parameter
+      float angle = rot.y;                 // radians, –π…π
+      float shift = sin(angle*2.0 + time*3.0) * 0.5;
+      float stripe = sin((vUv.x+vUv.y + time*5.0 + angle)*50.0)
+                     * 0.5 + 0.5;
+      vec3 holo = mix(base.rgb, hueShift(base.rgb, shift), stripe);
+      gl_FragColor = vec4(holo, base.a);
     }
   `
 });
 
-AFRAME.registerShader("tcg-foil", {
-  schema: {
-    map: { type: "map", is: "uniform" },
-    timeMsec: { type: "time", is: "uniform" }
-  },
+// component that keeps the shader uniform up to date
+AFRAME.registerComponent('sync-rotation', {
+  tick: function () {
+    const r = this.el.object3D.rotation;
+    // material.rot is the uniform defined above
+    this.el.setAttribute('material', 'rot', `${r.x} ${r.y} ${r.z}`);
+  }
+});
 
+AFRAME.registerShader('lamp-glow', {
+  schema: {
+    map:          { type: 'map',  is: 'uniform' },
+    time:         { type: 'time', is: 'uniform' },
+    glowColor:    { type: 'color', is: 'uniform', default: '#ffffee' },
+    glowWidth:    { type: 'number', is: 'uniform', default: 0.6 },
+    pulseSpeed:   { type: 'number', is: 'uniform', default: 0 },  // 0 = no pulsation
+    glowIntensity:{ type: 'number', is: 'uniform', default: 1.0 },// multiplier for brightness
+    full:         { type: 'boolean', is: 'uniform', default: false } // ignore radial falloff
+  },
   vertexShader: `
     varying vec2 vUv;
-    varying vec3 vNormal;
-    varying vec3 vViewDir;
-
-    void main(){
-
+    void main() {
       vUv = uv;
-
-      vec4 worldPos = modelMatrix * vec4(position,1.0);
-
-      vNormal = normalize(normalMatrix * normal);
-      vViewDir = normalize(cameraPosition - worldPos.xyz);
-
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+      gl_Position =
+        projectionMatrix * modelViewMatrix * vec4(position,1.0);
     }
   `,
-
   fragmentShader: `
-    varying vec2 vUv;
-    varying vec3 vNormal;
-    varying vec3 vViewDir;
-
     uniform sampler2D map;
-    uniform float timeMsec;
+    uniform float time;
+    uniform vec3 glowColor;       // acts as a tint/scale (white = no tint)
+    uniform float glowWidth;
+    uniform float pulseSpeed;
+    uniform float glowIntensity;
+    uniform bool full;            // if true, apply glow across entire plane
+    varying vec2 vUv;
 
-    float foilIntensity = 0.15;
-    float sparkleIntensity = 0.25;
-    float specIntensity = 0.2;
-
-    void main(){
-
+    void main() {
       vec4 base = texture2D(map, vUv);
 
-      float t = timeMsec * 0.001;
+      float glow;
+      if (full) {
+        // brighten entire quad uniformly
+        glow = 1.0;
+      } else {
+        float dist = distance(vUv, vec2(0.5));
+        // correct ordering: inner half → outer width
+        glow = smoothstep(glowWidth * 0.5, glowWidth, dist);
+      }
 
-      // ángulo cámara-superficie
-      float angle = dot(vNormal, vViewDir);
+      // use a controllable pulse speed; zero disables animation
+      float pulse = 1.0;
+      if (pulseSpeed != 0.0) {
+        pulse = 1.0 + 0.5 * sin(time * pulseSpeed);
+      }
+      // only apply glow where the source texture is opaque
+      // base.rgb drives the colour; glowColor tints/brightens it
+      vec3 add = base.rgb * glowColor * glow * pulse * glowIntensity * base.a;
+      // clamp to avoid oversaturation
+      add = min(add, vec3(1.0));
 
-      // arco iris iridiscente
-      float hue = angle * 6.0;
-
-      vec3 rainbow = vec3(
-        sin(hue) * 0.5 + 0.5,
-        sin(hue + 2.0) * 0.5 + 0.5,
-        sin(hue + 4.0) * 0.5 + 0.5
-      );
-
-      // brillo tipo luz (specular)
-      float spec = pow(max(angle,0.0),6.0);
-
-      // patrón diagonal foil
-      float foilPattern =
-        sin((vUv.x + vUv.y) * 10.0 + angle * 10.0) * 0.5 + 0.5;
-
-      // sparkles raros
-      float sparkleNoise = fract(
-        sin(dot(floor(vUv * 70.0), vec2(12.9898,78.233))) * 43758.5453
-      );
-
-      float sparkle = smoothstep(0.997,1.0,sparkleNoise);
-
-      sparkle *= pow(1.0 - abs(angle), 3.0);
-
-      sparkle *= sin(t * 4.0 + vUv.x * 10.0) * 0.5 + 0.5;
-
-      vec3 sparkleColor = rainbow * sparkle;
-
-      vec3 foilColor =
-        rainbow * foilPattern * foilIntensity +
-        sparkleColor * sparkleIntensity +
-        vec3(spec) * specIntensity;
-
-      vec3 finalColor = base.rgb + foilColor;
-
-      gl_FragColor = vec4(finalColor, base.a);
+      gl_FragColor = vec4(base.rgb + add, base.a);
     }
   `
 });
 
-
+// helper component that attaches a little point‑light to the entity
+AFRAME.registerComponent('lamp-light', {
+  schema: {
+    color:     { type: 'color', default: '#ffffee' },
+    intensity: { type: 'number', default: 2 },        // bump default for visibility
+    distance:  { type: 'number', default: 2 }
+  },
+  init: function () {
+    const lightEl = document.createElement('a-entity');
+    lightEl.setAttribute('light',
+      `type: point; color: ${this.data.color};
+       intensity: ${this.data.intensity};
+       distance: ${this.data.distance}`);
+    // position the light slightly in front of the plane so it can
+    // illuminate nearby faces instead of being exactly coplanar
+    lightEl.setAttribute('position', '0 0 0.1');
+    this.el.appendChild(lightEl);
+  }
+});

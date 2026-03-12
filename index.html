@@ -62,7 +62,32 @@
         <img id="b3" src="./Aura/B3.png" />  
         </a-assets>
 
+        <!-- assets para el tipo de verde -->
+        <a-assets>
+        <img id="F1" src="./Fenix/A1.png" />
+        <img id="F2" src="./Fenix/A2.png" />
+        <img id="F3" src="./Fenix/A3.png" />
+        <img id="F4" src="./Fenix/A4.png" />
+        </a-assets>
+
+        <!-- assets para el Reactor -->
+        <a-assets>
+        <img id="Reactor1" src="./Reactor/D1.png" />
+        <img id="Reactor2" src="./Reactor/D2.png" />
+        <img id="Reactor3" src="./Reactor/D3.png" />
+        <img id="Reactor4" src="./Reactor/D4.png" />
+        <img id="Reactor5" src="./Reactor/D5.png" />
+        <img id="Reactor6" src="./Reactor/D6.png" />
+        <img id="Reactor7" src="./Reactor/D7.png" />
+        <img id="Reactor8" src="./Reactor/D8.png" />
+        <img id="Reactor9" src="./Reactor/D9.png" />
+        </a-assets>
+
+
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <!-- ambient light to ensure textures are visible without dark lighting;
+           keep low so point lights can still create noticeable highlights -->
+      <a-light type="ambient" color="#FFFFFF" intensity="0.3"></a-light>
 
       <!-- este target es la imagen de test en el documento -->
       <a-entity mindar-image-target="targetIndex: 0" smooth-follow>
@@ -85,10 +110,10 @@
         <!-- este target es el robos -->
         <a-entity id="cardTarget" mindar-image-target="targetIndex: 1" smooth-follow  ar-video="video: #robos">
                 <a-plane src="#frame1" position="0 0 0" height="1" width="1"
-                material="shader: holofoil-distort; map: #frame1; transparent: true" render-order="0" view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
+                material="shader: holo-card; map: #frame1; transparent: true" sync-rotation render-order="0" view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
 
                 <a-plane src="#frame2" position="0 0 0.02" height="1" width="1"
-                material="shader: holofoil-distort; map: #frame2; transparent: true" render-order="1" uv-parallax="strength=0.01" view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
+                material="shader: holo-card; map: #frame2; transparent: true" sync-rotation render-order="1" uv-parallax="strength=0.01" view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
                 
                 <a-video src="#robos" position="0 0 0.1" height="1" width="1" render-order="2" 
                 material="color: black; transparent: true; opacity: 0.35; depthWrite: false;" fake-shadow="intensity: 0.06"
@@ -100,25 +125,56 @@
                 <a-plane src="#frame4" position="0 0 0.20" height="1" width="1"
                 material="transparent: true" render-order="4" view-parallax="intensity: 0.1; rotIntensity: 3"></a-plane>
 
-                <a-entity position="-0.6 0.5 0.5" scale="0.7 0.7 1"  view-parallax="intensity: 0.1; rotIntensity: 2">
-                        <!-- <a-plane src="#lamp4" position="0 0.05 -0.02" height="1" width="1" 
+                <a-entity position="-0.6 0.5 0.5" scale="0.65 0.65 1"  view-parallax="intensity: 0.1; rotIntensity: 2">
+                        <a-plane src="#lamp5" position="0 -0.05 -0.02" height="1" width="1" 
                         material="color: black; transparent: true; opacity: 0.35; depthWrite: false;" fake-shadow="intensity: 0.06"
-                        render-order="4"
-                        fake-shadow="intensity: 0.06">
-                        </a-plane> -->
-                        <a-plane src="#lamp4" position="0 0 0" height="1" width="1"
-                        material="transparent: true" render-order="3">
+                        render-order="4">
+                        </a-plane>
+
+                        <a-plane src="#lamp4" position="0 0 0.0" height="1" width="1"
+                        material="shader: lamp-glow;
+                        map:#lamp4;
+                        glowWidth:0.8;
+                        glowIntensity:-0.6;
+                        pulseSpeed:0.003;
+                        full:true;
+                        transparent: true;
+                        depthTest: false;
+                        depthWrite: false 
+                        render-order="3">
                         </a-plane>  
-                        <a-plane src="#lamp3" position="0 0 0" height="1" width="1"
-                        material="transparent: true" render-order="2">
+
+                        <a-plane src="#lamp3" position="0 0 0.0" height="1" width="1"
+                        material="shader: lamp-glow;
+                        map:#lamp3;
+                        glowWidth:0.8;
+                        glowIntensity:0.4;
+                        pulseSpeed:0.003;
+                        full:true;
+                        transparent: true;
+                        depthTest: false;
+                        depthWrite: false"
+                        lamp-light="color: #88ffff; intensity: 1; distance: 0.1"
+                        render-order="2">
                         </a-plane>  
-                        <a-plane src="#lamp2" position="0 0 0" height="1" width="1"
-                        material="transparent: true" render-order="1">
+
+                        <a-plane src="#lamp2" position="0 0 0.0" height="1" width="1"
+                        material="shader: lamp-glow;
+                        map: #lamp2;
+                        glowWidth:0.8;
+                        glowIntensity:0.05;
+                        pulseSpeed:0.003;
+                        full:true;
+                        transparent: true;
+                        depthTest: false;
+                        depthWrite: false"
+                        lamp-light="color: #88ffff; intensity: 1.5; distance: 1.5"
+                        render-order="1">
                         </a-plane>  
-                        <a-plane src="#lamp1" position="0 0 0" height="1" width="1"
+
+                        <a-plane src="#lamp1" position="0 0 0.0" height="1" width="1"
                         material="transparent: true" render-order="0">
                         </a-plane>
-                </a-plane>  
                 </a-entity>     
 
         </a-entity>
@@ -158,6 +214,49 @@
                         </a-plane>
 
                 </a-entity>
+        </a-entity>
+
+
+        <!-- Target del tipo verde -->
+        <a-entity id="cardTarget" mindar-image-target="targetIndex: 3" smooth-follow>
+                <a-entity view-parallax="intensity: 0.5; rotIntensity: 4">
+                        <a-plane src="#F4" position="0 0 0" height="1" width="1"
+                        material="transparent: true" render-order="3">
+                        </a-plane>  
+                        <a-plane src="#F3" position="0 0 0" height="1" width="1"
+                        material="transparent: true" render-order="2">
+                        </a-plane>  
+                        <a-plane src="#F2" position="0 0 0" height="1" width="1"
+                        material="transparent: true" render-order="1">
+                        </a-plane>  
+                        <a-plane src="#F1" position="0 0 0" height="1" width="1"
+                        material="transparent: true" render-order="0">
+                        </a-plane>
+                </a-entity>
+        </a-entity>
+
+          <!-- Target del Reactor -->
+        <a-entity id="reactorTarget" mindar-image-target="targetIndex: 4" smooth-follow>
+                <a-plane position="0 -0.2 -0.03" width="1.05" height="1.3"
+                        material="color: white; transparent: false"></a-plane>
+                <a-plane src="#Reactor9" position="0 -0.8 -0.01" height="1" width="1"
+                        material="transparent: true" render-order="0"></a-plane>
+                <a-plane src="#Reactor8" position="0 -0.6 0.0" height="1" width="1"
+                        material="transparent: true" render-order="1"></a-plane>
+                <a-plane src="#Reactor7" position="0 0 0.01" height="1" width="1"
+                        material="transparent: true" render-order="2"></a-plane>
+                <a-plane src="#Reactor6" position="0 0 0.02" height="1" width="1"
+                        material="transparent: true" render-order="3"></a-plane>
+                <a-plane src="#Reactor5" position="0 0 0.03" height="1" width="1"
+                        material="transparent: true" render-order="4"></a-plane>
+                <a-plane src="#Reactor4" position="0 0 0.04" height="1" width="1"
+                        material="transparent: true" render-order="5"></a-plane>
+                <a-plane src="#Reactor3" position="0 0 0.05" height="1" width="1"
+                        material="transparent: true" render-order="6"></a-plane>
+                <a-plane src="#Reactor2" position="0 0 0.06" height="1" width="1"
+                        material="transparent: true" render-order="7"></a-plane>
+                <a-plane src="#Reactor1" position="0 0 0.07" height="1" width="1"
+                        material="transparent: true" render-order="8"></a-plane>
         </a-entity>
 
  </a-scene>
