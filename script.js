@@ -157,7 +157,7 @@ AFRAME.registerShader("tcg-foil", {
     uniform sampler2D map;
     uniform float timeMsec;
 
-    float foilIntensity = 0.35;
+    float foilIntensity = 0.15;
     float sparkleIntensity = 0.25;
     float specIntensity = 0.2;
 
