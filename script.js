@@ -208,3 +208,237 @@ AFRAME.registerComponent('lamp-light', {
     this.el.appendChild(lightEl);
   }
 });
+
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  const scene = document.querySelector("a-scene");
+
+  scene.addEventListener("loaded", () => {
+    const maskEl = document.querySelector("#mask");
+    const contentEl = document.querySelector("#content");
+    const mask = maskEl?.getObject3D("mesh");
+    const content = contentEl?.getObject3D("mesh");
+
+    if (mask) {
+      mask.material = new THREE.MeshBasicMaterial({
+        colorWrite: false,
+        depthWrite: false,
+        stencilWrite: true,
+        stencilRef: 1,
+        stencilFunc: THREE.AlwaysStencilFunc,
+        stencilZPass: THREE.ReplaceStencilOp
+      });
+    }
+
+    if (content) {
+      content.material = new THREE.MeshBasicMaterial({
+        color: "red",
+        stencilWrite: true,
+        stencilRef: 1,
+        stencilFunc: THREE.EqualStencilFunc
+      });
+    }
+  });
+  
+});
+
+AFRAME.registerComponent('stencil-mask', {
+  init() {
+    const el = this.el;
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, 512, 512);
+    ctx.clearRect(128, 128, 256, 256); // hueco transparente en el centro
+    
+    const testTex = new THREE.CanvasTexture(canvas);
+    this.applied = false;
+
+    const apply = () => {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh) return;
+
+      const tex = mesh.material.map;
+      if (!tex) return;
+      
+
+      mesh.material = new THREE.ShaderMaterial({
+        uniforms: { map: { value: tex } },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D map;
+          varying vec2 vUv;
+          void main() {
+            vec4 color = texture2D(map, vUv);
+            if (color.a < 0.1) discard;
+            gl_FragColor = vec4(0.0);
+          }
+        `,
+        colorWrite: false,
+        depthTest: true,
+        depthWrite: false,
+        stencilWrite: true,
+        stencilRef: 1,
+        stencilFunc: THREE.AlwaysStencilFunc,
+        stencilFail: THREE.ReplaceStencilOp,
+        stencilZFail: THREE.ReplaceStencilOp,
+        stencilZPass: THREE.ReplaceStencilOp
+      });
+
+      mesh.renderOrder = 1;
+
+      mesh.onBeforeRender = (renderer) => {
+        const gl = renderer.getContext();
+        gl.enable(gl.STENCIL_TEST);
+        gl.stencilMask(0xFF);
+      };
+
+      this.applied = true;
+    };
+
+    el.addEventListener('materialtextureloaded', apply);
+    if (el.getObject3D('mesh')) apply();
+    else el.addEventListener('object3dset', apply);
+    
+  },
+  
+  tick() {
+    if (!this.applied) return;
+
+    const mesh = this.el.getObject3D('mesh');
+    if (!mesh) return;
+
+    // Si A-Frame pisó el material, lo detectamos y lo volvemos a aplicar
+    if (mesh.material.stencilWrite !== true) {
+      console.warn('A-Frame pisó el material, reaplicando...');
+      this.applied = false;
+    }
+  }
+});
+
+AFRAME.registerComponent('stencil-content', {
+  init() {
+    const el = this.el;
+
+    const apply = () => {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh) return;
+
+      const mat = mesh.material;
+
+      mat.stencilWrite = true;
+      mat.stencilRef = 1;
+      mat.stencilFunc = THREE.EqualStencilFunc;
+      mat.stencilFail = THREE.KeepStencilOp;
+      mat.stencilZFail = THREE.KeepStencilOp;
+      mat.stencilZPass = THREE.KeepStencilOp;
+
+      mat.depthTest = true;
+      mat.depthWrite = false;
+
+      mat.needsUpdate = true;
+
+      const htmlOrder = parseInt(el.getAttribute('render-order')) || 0;
+      mesh.renderOrder = 10 + htmlOrder;
+
+      mesh.onBeforeRender = (renderer) => {
+        const gl = renderer.getContext();
+        gl.enable(gl.STENCIL_TEST);
+        gl.stencilMask(0xFF);
+      };
+    };
+
+
+    if (el.getObject3D('mesh')) apply();
+    else el.addEventListener('object3dset', apply);
+  }
+});
+
+AFRAME.registerComponent('setup-stencil', {
+  init() {
+    const scene = this.el.sceneEl;
+    const apply = () => {
+      scene.renderer.autoClearStencil = false;
+      console.log('autoClearStencil:', scene.renderer.autoClearStencil); // verificar
+    };
+
+    if (scene.renderer) apply();
+    else scene.addEventListener('renderstart', apply);
+  }
+});
+
+AFRAME.registerComponent('stencil-debug', {
+  tick() {
+    const gl = this.el.sceneEl.renderer.getContext();
+    // Fuerza que el stencil test esté habilitado
+    gl.enable(gl.STENCIL_TEST);
+    console.log('stencil test enabled:', gl.getParameter(gl.STENCIL_TEST));
+  }
+});
+
+AFRAME.registerComponent('stencil-ignore', {
+  init() {
+    const el = this.el;
+
+    const apply = () => {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh) return;
+
+      mesh.renderOrder = 25; // forzar acá directamente
+
+      mesh.onBeforeRender = (renderer) => {
+        const gl = renderer.getContext();
+        gl.disable(gl.STENCIL_TEST);
+      };
+
+      mesh.onAfterRender = (renderer) => {
+        const gl = renderer.getContext();
+        gl.enable(gl.STENCIL_TEST);
+      };
+    };
+
+    if (el.getObject3D('mesh')) apply();
+    else el.addEventListener('object3dset', apply);
+    el.addEventListener('materialtextureloaded', apply);
+  }
+});
+
+AFRAME.registerComponent('debug-marco', {
+  tick() {
+    const mesh = this.el.getObject3D('mesh');
+    if (!mesh) return;
+  }
+});
+
+AFRAME.registerComponent('parallax', {
+  schema: {
+    strength: { type: 'number', default: 0.1 }
+  },
+
+  init() {
+    this.objPos = new THREE.Vector3();
+    this.camPos = new THREE.Vector3();
+  },
+
+  tick() {
+    const cam = this.el.sceneEl.camera;
+    if (!cam) return;
+
+    this.el.object3D.getWorldPosition(this.objPos);
+    cam.getWorldPosition(this.camPos);
+
+    const dir = this.objPos.clone().sub(this.camPos).normalize();
+
+    this.el.object3D.position.x -= dir.x * this.data.strength;
+    this.el.object3D.position.y -= dir.y * this.data.strength;
+  }
+});
