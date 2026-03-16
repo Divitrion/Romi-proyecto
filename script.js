@@ -1,5 +1,5 @@
 AFRAME.registerComponent('smooth-follow', {
-  schema: { factor: { default: 0.5 } },
+  schema: { factor: { default: 0.3 } },
   init() {
     this.targetPos = new THREE.Vector3();
   },
@@ -12,33 +12,41 @@ AFRAME.registerComponent('smooth-follow', {
 AFRAME.registerComponent('view-parallax', {
   schema: {
     intensity: { default: 0.3 },
-    rotIntensity: { default: 10 }
+    rotIntensity: { default: 10 },
+    maxRot: { default: 15 }
   },
 
   init() {
-    // Guardamos la posición original
     this.basePosition = this.el.object3D.position.clone();
+    this.objPos = new THREE.Vector3();
+    this.camPos = new THREE.Vector3();
   },
 
   tick() {
     const cam = this.el.sceneEl.camera;
     if (!cam) return;
 
-    const objPos = new THREE.Vector3();
-    const camPos = new THREE.Vector3();
+    this.el.object3D.getWorldPosition(this.objPos);
+    cam.getWorldPosition(this.camPos);
 
-    this.el.object3D.getWorldPosition(objPos);
-    cam.getWorldPosition(camPos);
+    const dir = this.objPos.clone().sub(this.camPos).normalize();
 
-    const dir = objPos.clone().sub(camPos).normalize();
-
-    // Aplicamos offset sobre la posición base
     this.el.object3D.position.x = this.basePosition.x - dir.x * this.data.intensity;
     this.el.object3D.position.y = this.basePosition.y - dir.y * this.data.intensity;
     this.el.object3D.position.z = this.basePosition.z;
 
-    this.el.object3D.rotation.y = dir.x * this.data.rotIntensity;
-    this.el.object3D.rotation.x = dir.y * this.data.rotIntensity;
+    const maxRad = THREE.MathUtils.degToRad(this.data.maxRot);
+
+    this.el.object3D.rotation.y = THREE.MathUtils.clamp(
+      dir.x * this.data.rotIntensity,
+      -maxRad,
+      maxRad
+    );
+    this.el.object3D.rotation.x = THREE.MathUtils.clamp(
+      dir.y * this.data.rotIntensity,
+      -maxRad,
+      maxRad
+    );
   }
 });
 
@@ -50,24 +58,25 @@ AFRAME.registerComponent('fake-shadow', {
 
   init() {
     this.cam = this.el.sceneEl.camera;
+    this.basePos = null;
 
-    // guardar posición base
-    this.basePos = this.el.object3D.position.clone();
+    setTimeout(() => {
+      this.basePos = this.el.object3D.position.clone();
+    }, 150); // un poco más tarde que el parallax
   },
 
   tick() {
-    if (!this.cam) return;
+    if (!this.cam || !this.basePos) return;
 
     const rot = this.cam.rotation;
 
     const offsetX = -rot.y * this.data.intensity;
     const offsetY = -rot.x * this.data.intensity;
 
-    this.el.object3D.position.set(
-      this.basePos.x + offsetX,
-      this.basePos.y + offsetY,
-      this.basePos.z
-    );
+    // Partir de la posición actual (que ya incluye el parallax)
+    // en lugar de la base original
+    this.el.object3D.position.x += offsetX;
+    this.el.object3D.position.y += offsetY;
   }
 });
 
@@ -342,10 +351,11 @@ AFRAME.registerComponent('stencil-content', {
       mat.stencilZFail = THREE.KeepStencilOp;
       mat.stencilZPass = THREE.KeepStencilOp;
 
-      mat.depthTest = true;
+      mat.depthTest = false;
       mat.depthWrite = false;
 
       mat.needsUpdate = true;
+      
 
       const htmlOrder = parseInt(el.getAttribute('render-order')) || 0;
       mesh.renderOrder = 10 + htmlOrder;
@@ -421,24 +431,124 @@ AFRAME.registerComponent('debug-marco', {
 
 AFRAME.registerComponent('parallax', {
   schema: {
-    strength: { type: 'number', default: 0.1 }
+    strength: { type: 'number', default: 0.1 },
+    maxOffset: { type: 'number', default: 0.2 },
+    smoothing: { type: 'number', default: 0.1 }
   },
 
   init() {
     this.objPos = new THREE.Vector3();
     this.camPos = new THREE.Vector3();
+    this.currentOffset = new THREE.Vector2(0, 0);
+    this.basePosition = null;
+
+    // Esperar a que todos los componentes estén listos
+    setTimeout(() => {
+      this.basePosition = this.el.object3D.position.clone();
+    }, 100);
   },
 
   tick() {
     const cam = this.el.sceneEl.camera;
-    if (!cam) return;
+    if (!cam || !this.basePosition) return;
 
     this.el.object3D.getWorldPosition(this.objPos);
     cam.getWorldPosition(this.camPos);
 
     const dir = this.objPos.clone().sub(this.camPos).normalize();
 
-    this.el.object3D.position.x -= dir.x * this.data.strength;
-    this.el.object3D.position.y -= dir.y * this.data.strength;
+    const targetOffsetX = THREE.MathUtils.clamp(
+      -dir.x * this.data.strength,
+      -this.data.maxOffset,
+      this.data.maxOffset
+    );
+    const targetOffsetY = THREE.MathUtils.clamp(
+      -dir.y * this.data.strength,
+      -this.data.maxOffset,
+      this.data.maxOffset
+    );
+
+    this.currentOffset.x += (targetOffsetX - this.currentOffset.x) * this.data.smoothing;
+    this.currentOffset.y += (targetOffsetY - this.currentOffset.y) * this.data.smoothing;
+
+    this.el.object3D.position.x = this.basePosition.x + this.currentOffset.x;
+    this.el.object3D.position.y = this.basePosition.y + this.currentOffset.y;
   }
+});
+
+AFRAME.registerShader('smoke', {
+  schema: {
+    color: { type: 'color', default: '#272626', is: 'uniform' },
+    opacity: { type: 'number', default: 0.6, is: 'uniform' },
+    time: { type: 'time', default: 0, is: 'uniform' },
+    speed: { type: 'number', default: 0.5, is: 'uniform' },
+    scale: { type: 'number', default: 3.0, is: 'uniform' }
+  },
+
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+
+fragmentShader: `
+    uniform float opacity;
+    uniform float time;
+    varying vec2 vUv;
+
+    float hash(vec2 p) {
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+    }
+
+    float noise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      return mix(
+        mix(hash(i), hash(i + vec2(1,0)), f.x),
+        mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), f.x),
+        f.y
+      );
+    }
+
+    float fbm(vec2 p) {
+      float v = 0.0;
+      v += 0.5000 * noise(p);
+      v += 0.2500 * noise(p * 2.0);
+      v += 0.1250 * noise(p * 4.0);
+      v += 0.0625 * noise(p * 8.0);
+      return v;
+    }
+
+    void main() {
+      vec2 uv = vUv;
+      float t = time * 0.0005;
+
+      vec2 movingUv = vec2(uv.x - t * 0.5, uv.y - t);
+
+      vec2 smokeUv = vec2(
+        movingUv.x + fbm(movingUv * 2.0 + t) * 0.5,
+        movingUv.y + fbm(movingUv * 2.0 - t) * 0.5
+      );
+
+      float smoke = fbm(smokeUv * 2.0) * 1.5;
+
+      float distX = abs(uv.x - 0.5) * 2.0;
+      float distY = uv.y;
+
+      float shape = (1.0 - distX * distX) * (1.0 - distY * 0.8);
+
+      float alpha = smoke * shape * opacity;
+      alpha = smoothstep(0.05, 0.45, alpha);
+
+      // Negro abajo, color claro arriba
+      vec3 black = vec3(0.0, 0.0, 0.0);
+      vec3 smokeColor = vec3(0.1, 0.1, 0.1);
+      vec3 finalColor = mix(black, smokeColor, smoothstep(0.0, 0.6, uv.y));
+
+      gl_FragColor = vec4(finalColor, alpha);
+    }
+  `
 });
