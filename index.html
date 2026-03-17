@@ -87,6 +87,34 @@
                 playsinline
                 crossorigin="anonymous">
         </video>
+        <video id="pajarito"
+                src="./Fenix/Fenix FG.webm"
+                loop
+                muted
+                playsinline
+                crossorigin="anonymous">
+        </video>
+        <video id="fenix-mid"
+                src="./Fenix/Fenix Mid Layer.webm"
+                loop
+                muted
+                playsinline
+                crossorigin="anonymous">
+        </video>
+        <video id="humito"
+                src="./Fenix/Smoke FG Layer.webm"
+                loop
+                muted
+                playsinline
+                crossorigin="anonymous">
+        </video>
+        <video id="humito-abajo"
+                src="./Fenix/Smoke FG Layer.webm"
+                loop
+                muted
+                playsinline
+                crossorigin="anonymous">
+        </video>
         </a-assets>
 
         <!-- assets para el Reactor -->
@@ -104,6 +132,8 @@
         <img id="Reactor11" src="./Reactor/D10.png" />
         <img id="Reactor12" src="./Reactor/D12.png" />
         <img id="Reactor13" src="./Reactor/D13.png" />
+        <img id="Reactor14" src="./Reactor/G_Reemplazo.png" />
+        <img id="Reactor15" src="./Reactor/G_Reemplazo2.png" />
         <img id="ReactorMask" src="./Reactor/D14.png" />
         </a-assets>
 
@@ -345,14 +375,32 @@
                         </a-plane>  
 
 
-                        <a-video src="#fenix" position="0 0 0.0" height="1" width="1" scale="2 2 1" 
+                        <!-- <a-video src="#fenix-mid" position="0 0 0.0" height="1" width="1" scale="2 2 1" 
                         material="shader: flat; color: black; transparent: true; opacity: 0.35; depthWrite: false; alphaTest: 0.3"
                         parallax="strength: 2; maxOffset: 2; smoothing: 0.1"
                         render-order="1"
                         fake-shadow="intensity: 0.06">
+                        </a-video> -->
+
+                        <a-video src="#fenix-mid" width="1" height="1" position="0 0 0.0" scale="2 2 1"
+                        parallax="strength: 1.5; maxOffset: 2; smoothing: 0.1"
+                        material="shader: flat; transparent: true; depthWrite: false; depthTest: false" 
+                        render-order="2">
                         </a-video>
 
-                        <a-video src="#fenix" width="1" height="1" position="0 0 0.0" scale="2 2 1"
+                        <a-video src="#pajarito" width="1" height="1" position="0 0 0.0" scale="2 2 1"
+                        parallax="strength: 1.5; maxOffset: 2; smoothing: 0.1"
+                        material="shader: flat; transparent: true; depthWrite: false; depthTest: false" 
+                        render-order="2">
+                        </a-video>
+
+                        <a-video src="#humito" width="1" height="1" position="0 0 0.0" scale="2 2 1"
+                        parallax="strength: 1.5; maxOffset: 2; smoothing: 0.1"
+                        material="shader: flat; transparent: true; depthWrite: false; depthTest: false" 
+                        render-order="2">
+                        </a-video>
+
+                        <a-video src="#humito-abajo" width="1" height="1" position="0 0 0.0" scale="2 2 1"
                         parallax="strength: 1.5; maxOffset: 2; smoothing: 0.1"
                         material="shader: flat; transparent: true; depthWrite: false; depthTest: false" 
                         render-order="2">
@@ -365,12 +413,12 @@
 
                         <a-plane src="#F2" position="0 0 0.02" height="1" width="1"
                         material="shader: flat; transparent: true; depthTest: false; depthWrite: false" 
-                        render-order="4" scale="2 2 1">
+                        render-order="6" scale="2 2 1">
                         </a-plane>  
 
                         <a-plane src="#F1" position="0 0 0.03" height="1" width="1"
                         material="shader: flat; transparent: true; depthTest: false; depthWrite: false" 
-                        render-order="5" scale="2 2 1">
+                        render-order="7" scale="2 2 1">
                         </a-plane>
                 </a-entity>
         </a-entity>
@@ -393,74 +441,38 @@
 
                 <a-plane src="#ReactorMask" width="1" height="1" position="0 0 0.0" stencil-mask scale="2 2 1"></a-plane>
 
-                <a-entity position="0 -0.05 0.03" scale="1.2 1.2 1" smooth-follow>
+                <a-entity position="0 -0.05 0.03" scale="1.2 1.2 1">
                         <a-plane src="#Reactor7" position="0 0 0.0" height="1" width="1" scale="2 2 1"
                         material="shader: flat; transparent: true" render-order="2" stencil-content 
-                        parallax="strength: 1; maxOffset: 3; smoothing: 0.1"></a-plane>
+                        parallax="strength: 1; maxOffset: 5; smoothing: 0.1"></a-plane>
                         
-                        <a-plane src="#Reactor6" position="0 0 0.0" height="1" width="1" scale="2 2 1"
-                        material="shader: flat; transparent: true" render-order="3" stencil-content 
-                        parallax="strength: 1.5; maxOffset: 3; smoothing: 0.1"></a-plane>
-                        
-                        <a-plane src="#Reactor5" position="0 0 0.0" height="1" width="1" scale="2 2 1"
-                        material="shader: flat; transparent: true" render-order="4" stencil-content 
-                        parallax="strength: 1.5; maxOffset: 3; smoothing: 0.1"></a-plane>
-
                         <a-plane src="#Reactor4" position="0 0 0.0" height="1" width="1" scale="2 2 1"
                         material="shader: flat; transparent: true" 
                         render-order="5" stencil-content 
-                        parallax="strength: 1.5; maxOffset: 3; smoothing: 0.1"></a-plane>
+                        parallax="strength: 2; maxOffset: 5; smoothing: 0.1"></a-plane>
 
                         <a-plane src="#Reactor11" position="0 0 0.0" height="1" width="1" scale="2 2 1"
-                        material="shader: lamp-glow;
-                        map: #Reactor11;
-                        glowWidth:0.8;
-                        glowIntensity:-0.3;
-                        pulseSpeed:0.003;
-                        full:true;
-                        transparent: true;
-                        depthTest: false;
-                        depthWrite: false" 
+                        material="shader: flat; transparent: true"
                         render-order="6" stencil-content 
-                        parallax="strength: 1.5; maxOffset: 3; smoothing: 0.1"></a-plane>
+                        parallax="strength: 2; maxOffset: 5; smoothing: 0.1"></a-plane>
                         
                         <a-plane src="#Reactor12" position="0 0 0.0" height="1" width="1" scale="2 2 1"
-                        material="shader: lamp-glow;
-                        map: #Reactor12;
-                        glowWidth:0.8;
-                        glowIntensity: 0.6;
-                        pulseSpeed:0.003;
-                        full:true;
-                        transparent: true;
-                        depthTest: false;
-                        depthWrite: false" 
+                        material="shader: flat; transparent: true"
                         render-order="7" stencil-content 
-                        parallax="strength: 1.5; maxOffset: 3; smoothing: 0.1"></a-plane>
+                        parallax="strength: 2; maxOffset: 5; smoothing: 0.1"></a-plane>
                         
                         <a-plane src="#Reactor13" position="0 0 0.0" height="1" width="1" scale="2 2 1"
-                        material="shader: lamp-glow;
-                        map: #Reactor13;
-                        glowWidth:0.8;
-                        glowIntensity: 0.15;
-                        pulseSpeed:0.003;
-                        full:true;
-                        transparent: true;
-                        depthTest: false;
-                        depthWrite: false" 
+                        material="shader: flat; transparent: true"
                         render-order="8" stencil-content 
-                        parallax="strength: 1.5; maxOffset: 3; smoothing: 0.1"></a-plane>
-
-                        <a-plane src="#Reactor3" position="0 0 0.0" height="1" width="1" scale="2 2 1"
-                        material="shader: flat; transparent: true" render-order="9" stencil-content 
-                        parallax="strength: 1.5; maxOffset: 3; smoothing: 0.1"></a-plane>
+                        parallax="strength: 2; maxOffset: 5; smoothing: 0.1"></a-plane>
                         
-                        <a-plane src="#Reactor2" position="0 0 0.0" height="1" width="1" scale="2 2 1"
-                        material="shader: flat; transparent: true" render-order="10" stencil-content 
-                        parallax="strength: 1.5; maxOffset: 3; smoothing: 0.1"></a-plane>
+                        <a-plane src="#Reactor14" position="0 0 0.0" height="1" width="1" scale="2 2 1"
+                        material="shader: flat; transparent: truetransparent: true" render-order="10" stencil-content 
+                        parallax="strength: 2; maxOffset: 5; smoothing: 0.1"></a-plane>
                         
-                        <a-plane src="#Reactor1" position="0 0 0.0" height="1" width="1" scale="2 2 1"
+                        <a-plane src="#Reactor15" position="0 0 0.0" height="1" width="1" scale="2 2 1"
                         material="shader: flat; transparent: true" render-order="11" stencil-content 
-                        parallax="strength: 1.5; maxOffset: 3; smoothing: 0.1"></a-plane>
+                        parallax="strength: 2; maxOffset: 5; smoothing: 0.1"></a-plane>
                 </a-entity>
 
         </a-entity>
