@@ -19,34 +19,26 @@ AFRAME.registerComponent('view-parallax', {
   init() {
     this.basePosition = this.el.object3D.position.clone();
     this.objPos = new THREE.Vector3();
-    this.camPos = new THREE.Vector3();
+    this.dir = new THREE.Vector3();
+    this.lastTick = 0;
   },
 
-  tick() {
-    const cam = this.el.sceneEl.camera;
-    if (!cam) return;
+  tick(time) {
+    if (time - this.lastTick < 32) return;
+    this.lastTick = time;
+
+    const camPos = this.el.sceneEl.systems['camera-tracker'].camPos;
 
     this.el.object3D.getWorldPosition(this.objPos);
-    cam.getWorldPosition(this.camPos);
+    this.dir.copy(this.objPos).sub(camPos).normalize();
 
-    const dir = this.objPos.clone().sub(this.camPos).normalize();
-
-    this.el.object3D.position.x = this.basePosition.x - dir.x * this.data.intensity;
-    this.el.object3D.position.y = this.basePosition.y - dir.y * this.data.intensity;
+    this.el.object3D.position.x = this.basePosition.x - this.dir.x * this.data.intensity;
+    this.el.object3D.position.y = this.basePosition.y - this.dir.y * this.data.intensity;
     this.el.object3D.position.z = this.basePosition.z;
 
     const maxRad = THREE.MathUtils.degToRad(this.data.maxRot);
-
-    this.el.object3D.rotation.y = THREE.MathUtils.clamp(
-      dir.x * this.data.rotIntensity,
-      -maxRad,
-      maxRad
-    );
-    this.el.object3D.rotation.x = THREE.MathUtils.clamp(
-      dir.y * this.data.rotIntensity,
-      -maxRad,
-      maxRad
-    );
+    this.el.object3D.rotation.y = THREE.MathUtils.clamp(this.dir.x * this.data.rotIntensity, -maxRad, maxRad);
+    this.el.object3D.rotation.x = THREE.MathUtils.clamp(this.dir.y * this.data.rotIntensity, -maxRad, maxRad);
   }
 });
 
@@ -59,24 +51,22 @@ AFRAME.registerComponent('fake-shadow', {
   init() {
     this.cam = this.el.sceneEl.camera;
     this.basePos = null;
+    this.lastTick = 0;
 
     setTimeout(() => {
       this.basePos = this.el.object3D.position.clone();
-    }, 150); // un poco más tarde que el parallax
+    }, 150);
   },
 
-  tick() {
+  tick(time) {
+    if (time - this.lastTick < 32) return;
+    this.lastTick = time;
+
     if (!this.cam || !this.basePos) return;
 
     const rot = this.cam.rotation;
-
-    const offsetX = -rot.y * this.data.intensity;
-    const offsetY = -rot.x * this.data.intensity;
-
-    // Partir de la posición actual (que ya incluye el parallax)
-    // en lugar de la base original
-    this.el.object3D.position.x += offsetX;
-    this.el.object3D.position.y += offsetY;
+    this.el.object3D.position.x += -rot.y * this.data.intensity;
+    this.el.object3D.position.y += -rot.x * this.data.intensity;
   }
 });
 
@@ -438,32 +428,34 @@ AFRAME.registerComponent('parallax', {
 
   init() {
     this.objPos = new THREE.Vector3();
-    this.camPos = new THREE.Vector3();
+    this.dir = new THREE.Vector3();
     this.currentOffset = new THREE.Vector2(0, 0);
     this.basePosition = null;
+    this.lastTick = 0;
 
-    // Esperar a que todos los componentes estén listos
     setTimeout(() => {
       this.basePosition = this.el.object3D.position.clone();
     }, 100);
   },
 
-  tick() {
-    const cam = this.el.sceneEl.camera;
-    if (!cam || !this.basePosition) return;
+  tick(time) {
+    if (time - this.lastTick < 32) return; // ~30fps
+    this.lastTick = time;
+
+    if (!this.basePosition) return;
+
+    const camPos = this.el.sceneEl.systems['camera-tracker'].camPos;
 
     this.el.object3D.getWorldPosition(this.objPos);
-    cam.getWorldPosition(this.camPos);
-
-    const dir = this.objPos.clone().sub(this.camPos).normalize();
+    this.dir.copy(this.objPos).sub(camPos).normalize();
 
     const targetOffsetX = THREE.MathUtils.clamp(
-      -dir.x * this.data.strength,
+      -this.dir.x * this.data.strength,
       -this.data.maxOffset,
       this.data.maxOffset
     );
     const targetOffsetY = THREE.MathUtils.clamp(
-      -dir.y * this.data.strength,
+      -this.dir.y * this.data.strength,
       -this.data.maxOffset,
       this.data.maxOffset
     );
@@ -551,4 +543,19 @@ fragmentShader: `
       gl_FragColor = vec4(finalColor, alpha);
     }
   `
+});
+
+AFRAME.registerSystem('camera-tracker', {
+  init() {
+    this.camPos = new THREE.Vector3();
+    this.camera = null;
+  },
+
+  tick() {
+    if (!this.camera) {
+      this.camera = this.el.camera;
+      if (!this.camera) return;
+    }
+    this.camera.getWorldPosition(this.camPos);
+  }
 });
