@@ -374,51 +374,39 @@
                         render-order="0" scale="2 2 1">
                         </a-plane>  
 
+                        <a-plane src="#ReactorMask" width="1" height="1" position="0 0 0.0" stencil-mask scale="2 2 1"></a-plane>
 
-                        <!-- <a-video src="#fenix-mid" position="0 0 0.0" height="1" width="1" scale="2 2 1" 
+                        <a-video src="#fenix" position="0 0 0.0" height="1" width="1" scale="2 2 1" 
                         material="shader: flat; color: black; transparent: true; opacity: 0.35; depthWrite: false; alphaTest: 0.3"
                         parallax="strength: 2; maxOffset: 2; smoothing: 0.1"
                         render-order="1"
-                        fake-shadow="intensity: 0.06">
-                        </a-video> -->
-
-                        <a-video src="#fenix-mid" width="1" height="1" position="0 0 0.0" scale="2 2 1"
-                        parallax="strength: 1.5; maxOffset: 2; smoothing: 0.1"
-                        material="shader: flat; transparent: true; depthWrite: false; depthTest: false" 
-                        render-order="2">
+                        fake-shadow="intensity: 0.06"
+                        stencil-content>
                         </a-video>
 
-                        <a-video src="#pajarito" width="1" height="1" position="0 0 0.0" scale="2 2 1"
+                        <a-video src="#fenix" width="1" height="1" position="0 0 0.0" scale="2 2 1"
                         parallax="strength: 1.5; maxOffset: 2; smoothing: 0.1"
                         material="shader: flat; transparent: true; depthWrite: false; depthTest: false" 
-                        render-order="2">
-                        </a-video>
-
-                        <a-video src="#humito" width="1" height="1" position="0 0 0.0" scale="2 2 1"
-                        parallax="strength: 1.5; maxOffset: 2; smoothing: 0.1"
-                        material="shader: flat; transparent: true; depthWrite: false; depthTest: false" 
-                        render-order="2">
-                        </a-video>
-
-                        <a-video src="#humito-abajo" width="1" height="1" position="0 0 0.0" scale="2 2 1"
-                        parallax="strength: 1.5; maxOffset: 2; smoothing: 0.1"
-                        material="shader: flat; transparent: true; depthWrite: false; depthTest: false" 
-                        render-order="2">
+                        render-order="2"
+                        stencil-content>
                         </a-video>
 
                         <a-plane src="#F3" position="0 0 0" height="1" width="1"
                         material="shader: flat; transparent: true; depthTest: false; depthWrite: false" 
-                        render-order="3" scale="2 2 1">
+                        render-order="3" scale="2 2 1"
+                        stencil-ignore>
                         </a-plane> 
 
                         <a-plane src="#F2" position="0 0 0.02" height="1" width="1"
                         material="shader: flat; transparent: true; depthTest: false; depthWrite: false" 
-                        render-order="6" scale="2 2 1">
+                        render-order="6" scale="2 2 1"
+                        stencil-ignore>
                         </a-plane>  
 
                         <a-plane src="#F1" position="0 0 0.03" height="1" width="1"
                         material="shader: flat; transparent: true; depthTest: false; depthWrite: false" 
-                        render-order="7" scale="2 2 1">
+                        render-order="7" scale="2 2 1"
+                        stencil-ignore>
                         </a-plane>
                 </a-entity>
         </a-entity>
