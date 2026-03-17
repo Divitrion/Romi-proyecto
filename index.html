@@ -165,19 +165,19 @@
         <a-entity id="cardTarget" mindar-image-target="targetIndex: 1" ar-video="video: #robos">
 
                 <a-plane src="#frame2" position="0 0 0" height="1" width="1"
-                material="transparent: true; depthWrite: false; depthTest: false" sync-rotation render-order="0" uv-parallax="strength=0.01" 
+                material="shader: flat;transparent: true; depthWrite: false; depthTest: false" sync-rotation render-order="0" uv-parallax="strength=0.01" 
                 view-parallax="intensity: 0.1; rotIntensity: 3"
                 stencil-ignore stencil-ignore
                 parallax="strength : 0.1"></a-plane>
 
                 <a-plane src="#frame0" position="0.03 -0.03 0.01" height="1" width="1"
-                material="transparent: true; depthWrite: false; depthTest: false" sync-rotation render-order="1" 
+                material="shader: flat; transparent: true; depthWrite: false; depthTest: false" sync-rotation render-order="1" 
                 view-parallax="intensity: 0.1; rotIntensity: 3"
                 stencil-ignore
                 parallax="strength : 0.3"></a-plane>
 
                 <a-plane src="#frame1" position="0 0 0.02" height="1" width="1"
-                material="transparent: true; depthWrite: false; depthTest: false" sync-rotation render-order="2" 
+                material="shader: flat; transparent: true; depthWrite: false; depthTest: false" sync-rotation render-order="2" 
                 view-parallax="intensity: 0.1; rotIntensity: 3"
                 stencil-ignore
                 parallax="strength : 0.3"></a-plane>
@@ -189,7 +189,7 @@
                 parallax="strength : 1"></a-video>
                 
                 <a-video src="#robos" position="0 0 0.15" height="1" width="1" render-order="3"
-                material="transparent: true; depthWrite: false; depthTest: false" 
+                material="shader: flat; transparent: true; depthWrite: false; depthTest: false" 
                 view-parallax="intensity: 0.25; rotIntensity: 4"
                 stencil-ignore
                 parallax="strength : 1"></a-video>
